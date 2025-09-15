@@ -17686,45 +17686,91 @@
     </table>
 
     <script>
-        function filterTable() {
-            const ingredientValue = document.getElementById('ingredientSearch').value.toLowerCase();
-            const tradeValue = document.getElementById('tradeSearch').value.toLowerCase();
-            const yearValue = document.getElementById('yearSearch').value.toLowerCase();
-            const formValue = document.getElementById('formSearch').value.toLowerCase();
-            const manufacturerValue = document.getElementById('manufacturerSearch').value.toLowerCase();
-            const marketingCompanyValue = document.getElementById('marketingCompanySearch').value.toLowerCase();
-            const marketingCountryValue = document.getElementById('marketingCountrySearch').value.toLowerCase();
+    function filterTable() {
+        const ingredientValue = document.getElementById('ingredientSearch').value.toLowerCase();
+        const tradeValue = document.getElementById('tradeSearch').value.toLowerCase();
+        const yearValue = document.getElementById('yearSearch').value.toLowerCase();
+        const formValue = document.getElementById('formSearch').value.toLowerCase();
+        const manufacturerValue = document.getElementById('manufacturerSearch').value.toLowerCase();
+        const marketingCompanyValue = document.getElementById('marketingCompanySearch').value.toLowerCase();
+        const marketingCountryValue = document.getElementById('marketingCountrySearch').value.toLowerCase();
 
-            const table = document.getElementById('dataTable');
-            const tr = table.getElementsByTagName('tr');
+        const table = document.getElementById('dataTable');
+        const tr = table.getElementsByTagName('tr');
 
-            for (let i = 1; i < tr.length; i++) { // Skip header
-                const tds = tr[i].getElementsByTagName('td');
-                if (tds.length >= 7) {
-                    const ingredientText = (tds[0].textContent || tds[0].innerText).toLowerCase();
-                    const tradeText = (tds[1].textContent || tds[1].innerText).toLowerCase();
-                    const yearText = (tds[2].textContent || tds[2].innerText).toLowerCase();
-                    const formText = (tds[3].textContent || tds[3].innerText).toLowerCase();
-                    const manufacturerText = (tds[4].textContent || tds[4].innerText).toLowerCase();
-                    const marketingCompanyText = (tds[5].textContent || tds[5].innerText).toLowerCase();
-                    const marketingCountryText = (tds[6].textContent || tds[6].innerText).toLowerCase();
+        for (let i = 1; i < tr.length; i++) {
+            const tds = tr[i].getElementsByTagName('td');
+            if (tds.length >= 7) {
+                const ingredientText = (tds[0].textContent || tds[0].innerText).toLowerCase();
+                const tradeText = (tds[1].textContent || tds[1].innerText).toLowerCase();
+                const yearText = (tds[2].textContent || tds[2].innerText).toLowerCase();
+                const formText = (tds[3].textContent || tds[3].innerText).toLowerCase();
+                const manufacturerText = (tds[4].textContent || tds[4].innerText).toLowerCase();
+                const marketingCompanyText = (tds[5].textContent || tds[5].innerText).toLowerCase();
+                const marketingCountryText = (tds[6].textContent || tds[6].innerText).toLowerCase();
 
-                    if (
-                        ingredientText.includes(ingredientValue) &&
-                        tradeText.includes(tradeValue) &&
-                        yearText.includes(yearValue) &&
-                        formText.includes(formValue) &&
-                        manufacturerText.includes(manufacturerValue) &&
-                        marketingCompanyText.includes(marketingCompanyValue) &&
-                        marketingCountryText.includes(marketingCountryValue)
-                    ) {
-                        tr[i].style.display = "";
-                    } else {
-                        tr[i].style.display = "none";
-                    }
+                if (
+                    ingredientText.includes(ingredientValue) &&
+                    tradeText.includes(tradeValue) &&
+                    yearText.includes(yearValue) &&
+                    formText.includes(formValue) &&
+                    manufacturerText.includes(manufacturerValue) &&
+                    marketingCompanyText.includes(marketingCompanyValue) &&
+                    marketingCountryText.includes(marketingCountryValue)
+                ) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
                 }
             }
         }
-    </script>
+    }
+
+    // Sorting functionality for all columns
+    document.addEventListener("DOMContentLoaded", function () {
+        const getCellValue = (tr, idx) => {
+            const cell = tr.children[idx];
+            return cell ? cell.innerText || cell.textContent : "";
+        };
+
+        const comparer = (idx, asc) => (a, b) => {
+            let v1 = getCellValue(asc ? a : b, idx);
+            let v2 = getCellValue(asc ? b : a, idx);
+
+            // Try to convert to number if both values are numbers
+            let fV1 = parseFloat(v1.replace(/[^0-9.\-]/g, ''));
+            let fV2 = parseFloat(v2.replace(/[^0-9.\-]/g, ''));
+            if (!isNaN(fV1) && !isNaN(fV2)) {
+                v1 = fV1;
+                v2 = fV2;
+            }
+            return v1 > v2 ? 1 : v1 < v2 ? -1 : 0;
+        };
+
+        const table = document.getElementById("dataTable");
+        const headers = table.querySelectorAll("th");
+        let sortDirections = Array(headers.length).fill(true); // true = asc, false = desc
+
+        headers.forEach((th, idx) => {
+            th.style.cursor = 'pointer';
+            th.title = 'Click to sort';
+
+            th.addEventListener("click", function () {
+                const tbody = table.tBodies[0];
+                Array.from(headers).forEach((header, i) => {
+                    if (i !== idx) header.classList.remove("sorted-asc", "sorted-desc");
+                });
+                sortDirections[idx] = !sortDirections[idx];
+
+                Array.from(tbody.querySelectorAll("tr"))
+                    .sort(comparer(idx, sortDirections[idx]))
+                    .forEach(tr => tbody.appendChild(tr));
+
+                th.classList.toggle("sorted-asc", sortDirections[idx]);
+                th.classList.toggle("sorted-desc", !sortDirections[idx]);
+            });
+        });
+    });
+</script>
 </body>
 </html>
