@@ -17777,6 +17777,22 @@
             });
         });
     });
+document.addEventListener('DOMContentLoaded', function() {
+    const table = document.getElementById('dataTable');
+    if (!table) return;
+    // Start from 1 to skip the header row
+    for (let i = 1; i < table.rows.length; i++) {
+        const ingredientCell = table.rows[i].cells[0]; // first column
+        if (ingredientCell) {
+            const ingredientName = ingredientCell.innerText.trim();
+            // Only add the link if not already a link
+            if (!ingredientCell.querySelector('a')) {
+                const wikiURL = 'https://en.wikipedia.org/wiki/' + encodeURIComponent(ingredientName.replace(/\s+/g, '_'));
+                ingredientCell.innerHTML = `<a href="${wikiURL}" target="_blank" rel="noopener">${ingredientName}</a>`;
+            }
+        }
+    }
+});
 </script>
 </body>
 </html>
